@@ -1,0 +1,60 @@
+---
+title: "607_Assignment_2A_Ony"
+author: "Ony"
+format: html
+editor: visual
+---
+
+## Approach
+
+## Steps
+
+-   Download and Install PostgreSQL
+
+-   Select the films and look into methods to create surveys directly within SQL. If this doesn't exist or is too complex, use 'Google Forms' or 'Survey Monkey' to send the survey.
+
+    -   Store the results of the survey in a SQL database
+
+-   Learn R and SQL integration methods. Load the SQL data onto R.
+
+## Execution
+
+-   Survey was hosted on google forms with this link: (<https://forms.gle/nW2xotrQBH7wVT9C9>)
+
+-   Responses were downloaded locally as a csv file, queried locally with SQL on pgAdmin, and exported into a csv file.
+
+Code block to import/initiate all the required packages:
+
+```{r import}
+library(dplyr)
+library(tidyverse)
+library(gt)
+```
+
+Importing the local csv file after exporting from pgAdmin:
+
+```{r import csv}
+localpath <- "C:/Users/tesla/Desktop/CUNY DATA SCIENCE DEGREE/607_Data_Aquisition/OnyCoModified.csv"
+
+#comment out previous line and uncomment the next line to reproduce:
+#localpath <- "https://raw.githubusercontent.com/ifi-ony/607_Assignment_2A/refs/heads/main/OnyCo.csv"
+
+
+sql_df <- read.csv(localpath, header = TRUE, sep = ',')
+
+sql_df
+```
+
+Creating new rows to show the average rating and the number of missing values per film:
+
+```{r sandbox}
+sandbox <- sql_df %>%
+  rename(user_id = id) %>%
+  bind_rows(summarise(.,across(where(is.numeric),mean),
+                      time_stamp = "Average Rating")) %>%
+  bind_rows(summarise(.,across(everything(), ~sum(is.na(.))),
+                      time_stamp = "No of missing rating entries")) %>%
+  gt()
+
+sandbox
+```
